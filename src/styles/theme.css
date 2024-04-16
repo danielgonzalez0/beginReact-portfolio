@@ -4,22 +4,22 @@
 
 #app {
   --color-background: 242 230 254;
-  --color-paper: 255 195 248;
+  --color-paper: 252 214 207;
   --color-text-primary: 0 0 0;
   --color-text-secondary: 38 38 38;
 
-  --color-primary: 234 0 255;
-  --color-secondary: 4 217 255;
+  --color-primary: 215 109 119;
+  --color-secondary: 253 187 45;
 }
 
 #app.dark {
-  --color-background: 24 3 46;
-  --color-paper: 40 5 75;
+  --color-background: 46 3 42;
+  --color-paper: 75 5 64;
   --color-text-primary: 255 255 255;
   --color-text-secondary: 217 217 217;
 
-  --color-primary: 234 0 255;
-  --color-secondary: 4 217 255;
+  --color-primary: 215 109 119;
+  --color-secondary: 253 187 45;
 }
 
 #app {
