@@ -4,7 +4,7 @@ export const GITHUB_USERNAME = 'melvynx';
 
 export const EMAIL = 'test@email.com';
 
-export const FULL_NAME = 'BeginReact';
+export const FULL_NAME = 'Daniel Gonzalez';
 
 export const SOCIAL_NETWORKS = [
   {
