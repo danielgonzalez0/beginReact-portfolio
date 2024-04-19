@@ -1,8 +1,11 @@
 import clsx from "clsx";
 import styles from "./MemoryCard.module.css";
 import { CARD_STATE } from "../../lib/memory";
+import { useThemeContext } from "../../context/ThemeProvider";
+
 
 export const MemoryCard = ({ children, card, onClick }) => {
+  const {isDark} = useThemeContext();
   const isReturned =
     card.state === CARD_STATE.RETURNED || card.state === CARD_STATE.FIND;
 
@@ -31,8 +34,9 @@ export const MemoryCard = ({ children, card, onClick }) => {
           }
         )}
       >
-        ❓{/* Memory Game - Exercise */}
+        {isDark ? "❓": "❔"}
       </button>
     </div>
   );
 };
+

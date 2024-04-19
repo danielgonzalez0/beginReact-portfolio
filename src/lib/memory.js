@@ -24,7 +24,7 @@ export const shuffle = (array) => {
   return copy;
 };
 
-const animals = [
+const ANIMALS = [
   "🐶",
   "🐱",
   "🐭",
@@ -52,7 +52,7 @@ export const CARD_STATE = {
 };
 
 export const getInitialMemory = () => {
-  return shuffle([...animals, ...animals]).map((v, i) => ({
+  return shuffle([...ANIMALS, ...ANIMALS]).map((v, i) => ({
     id: `card-${v}-${i}`,
     emoji: v,
     state: CARD_STATE.HIDE,
