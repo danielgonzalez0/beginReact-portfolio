@@ -1,12 +1,12 @@
 // Memory Game - Exercise
 
-import { createContext, useContext, useEffect, useState } from "react";
-import { CARD_STATE, GAME_STATUS, getInitialMemory, isMemoryFinished, isPairCards } from "../../lib/memory";
+import { createContext, useCallback, useContext, useEffect, useReducer } from "react";
+import { CARD_STATE, GAME_STATUS, isMemoryFinished, isPairCards } from "../../lib/memory";
+import { MEMORY_REDUCER_ACTIONS, MemoryInitialState, memoryReducer } from "./memoryReducer";
 
 const MemoryContext = createContext(null);
 
-
-export const useMemoryContext = ()=>{
+export const useMemoryContext = () => {
   const context = useContext(MemoryContext);
   if (!context) {
     throw new Error("useMemoryContext must be used within a MemoryProvider");
@@ -15,85 +15,59 @@ export const useMemoryContext = ()=>{
 }
 
 export const MemoryContextProvider = ({ children }) => {
-//states defined here
-const [cards, setCards] = useState(()=> getInitialMemory());
-const [status, setStatus] = useState(GAME_STATUS.PLAYING);
-const [actualCard, setActualCard] = useState(null); 
-const [score, setScore] = useState(0);
-const [isFinished, setIsFinished] = useState(false);
 
-//functions defined here
-const resetGame = () => {
-  setCards(getInitialMemory());
-  setStatus(GAME_STATUS.PLAYING);
-  setIsFinished(false);
-  setScore(0);
-}
+  const [state, dispatch] = useReducer(memoryReducer, MemoryInitialState);
+  const { cards, status, actualCard, score, isFinished } = state;
 
+  const resetGame = useCallback(() => {
+    dispatch({ type: MEMORY_REDUCER_ACTIONS.RESET_GAME });
+  },[])
 
-const returnCard = (card) => {
-  const newCards = cards.map(c => c.id === card.id ? { ...c, state: CARD_STATE.RETURNED } : c);
-  setCards(newCards);
-}
+  const handleClickedCard = useCallback((clickedCard) => {
+    if (status !== GAME_STATUS.PLAYING && status !== GAME_STATUS.WAITING_FOR_SECOND_CARD) return;
 
-const handlePairCards =  (card1, card2) => {
-const newCards = cards.map(card => card.id === card1.id || card.id === card2.id ? { ...card, state: CARD_STATE.FIND } : card);
-setCards(newCards);
-}
+    if (clickedCard.state !== CARD_STATE.HIDE) return;
 
-const handleNotPairCards = (card1, card2) => {
-  const newCards = cards.map(card => card.id === card1.id || card.id === card2.id ?
- { ...card, state: CARD_STATE.HIDE } : card);
-  setCards(newCards);
-  }
+    // returnCard(clickedCard);
+    dispatch({ type: MEMORY_REDUCER_ACTIONS.RETURN_CARD, payload: clickedCard  });
 
 
-const handleClickedCard =  (clickedCard) => {
-  //handleClickedCard defined here
-  if(status !== GAME_STATUS.PLAYING && status !== GAME_STATUS.WAITING_FOR_SECOND_CARD) return;
-  
-  if(clickedCard.state !== CARD_STATE.HIDE) return;
+    if (status === GAME_STATUS.PLAYING) {
+      dispatch({ type: MEMORY_REDUCER_ACTIONS.SET_GAME_STATUS, payload: { status: GAME_STATUS.WAITING_FOR_SECOND_CARD } });
+      dispatch({ type: MEMORY_REDUCER_ACTIONS.SET_ACTUAL_CARD, payload: { actualCard: clickedCard } });
+    }
 
-returnCard(clickedCard);
+    if (status === GAME_STATUS.WAITING_FOR_SECOND_CARD) {
+
+      dispatch({ type: MEMORY_REDUCER_ACTIONS.SET_GAME_STATUS, payload: { status: GAME_STATUS.WAIT_FOR_CLEAR } });
+
+      setTimeout(() => {
+        if (isPairCards(actualCard, clickedCard)) {
+      
+          dispatch({ type: MEMORY_REDUCER_ACTIONS.HANDLE_CARD, payload: { card1: actualCard, card2: clickedCard, newState: CARD_STATE.FIND } });
+        } else {
+          dispatch({ type: MEMORY_REDUCER_ACTIONS.HANDLE_CARD, payload: { card1: actualCard, card2: clickedCard, newState: CARD_STATE.HIDE } });
+        }
+        dispatch({ type: MEMORY_REDUCER_ACTIONS.SET_SCORE });
+      }, 900);
 
 
-  if(status === GAME_STATUS.PLAYING) {
-    setStatus(GAME_STATUS.WAITING_FOR_SECOND_CARD);
-    setActualCard(clickedCard);
-  }
+      setTimeout(() => {
+        dispatch({ type: MEMORY_REDUCER_ACTIONS.SET_GAME_STATUS, payload: { status: GAME_STATUS.PLAYING } });
+      }, 1000);
+    }
+  },[status, actualCard])
 
-  if(status === GAME_STATUS.WAITING_FOR_SECOND_CARD) {
-    returnCard(clickedCard);
-
-    setStatus(GAME_STATUS.WAIT_FOR_CLEAR);
-
-  setTimeout( () => {
-    if(isPairCards(actualCard, clickedCard)) {
-       handlePairCards(clickedCard, actualCard) 
-    } else {
-      handleNotPairCards(clickedCard, actualCard);
-    } 
-    setScore(curr => curr + 1);
-  }, 900);
-
-  setTimeout(() => {
-    setStatus(GAME_STATUS.PLAYING);
-  }, 1000);
-  }
- 
-  
-}
-
-//useEffect defined here
+  //useEffect defined here
   useEffect(() => {
-    if (isMemoryFinished(cards)) {
-      setIsFinished(true);
-      setStatus(GAME_STATUS.FINISHED);
+    if (cards && isMemoryFinished(cards)) {
+      dispatch({ type: MEMORY_REDUCER_ACTIONS.SET_IS_FINISHED, payload: { isFinished: true } });
+      dispatch({ type: MEMORY_REDUCER_ACTIONS.SET_GAME_STATUS, payload: { status: GAME_STATUS.FINISHED } });
     }
   }, [cards]);
 
 
-const values = { cards, score, resetGame, handleClickedCard, isFinished};
+  const values = { cards, score, resetGame, handleClickedCard, isFinished };
 
 
 
