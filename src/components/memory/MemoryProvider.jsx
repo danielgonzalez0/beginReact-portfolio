@@ -1,6 +1,6 @@
 // Memory Game - Exercise
 
-import { createContext, useCallback, useContext, useEffect, useReducer } from "react";
+import { createContext, useCallback, useContext, useMemo, useReducer } from "react";
 import { CARD_STATE, GAME_STATUS, isMemoryFinished, isPairCards } from "../../lib/memory";
 import { MEMORY_REDUCER_ACTIONS, MemoryInitialState, memoryReducer } from "./memoryReducer";
 
@@ -17,7 +17,7 @@ export const useMemoryContext = () => {
 export const MemoryContextProvider = ({ children }) => {
 
   const [state, dispatch] = useReducer(memoryReducer, MemoryInitialState);
-  const { cards, status, actualCard, score, isFinished } = state;
+  const { cards, status, actualCard, score } = state;
 
   const resetGame = useCallback(() => {
     dispatch({ type: MEMORY_REDUCER_ACTIONS.RESET_GAME });
@@ -41,16 +41,14 @@ export const MemoryContextProvider = ({ children }) => {
 
       dispatch({ type: MEMORY_REDUCER_ACTIONS.SET_GAME_STATUS, payload: { status: GAME_STATUS.WAIT_FOR_CLEAR } });
 
+      const checkIsPairCards = isPairCards(actualCard, clickedCard);
+  
       setTimeout(() => {
-        if (isPairCards(actualCard, clickedCard)) {
-      
-          dispatch({ type: MEMORY_REDUCER_ACTIONS.HANDLE_CARD, payload: { card1: actualCard, card2: clickedCard, newState: CARD_STATE.FIND } });
-        } else {
-          dispatch({ type: MEMORY_REDUCER_ACTIONS.HANDLE_CARD, payload: { card1: actualCard, card2: clickedCard, newState: CARD_STATE.HIDE } });
-        }
-        dispatch({ type: MEMORY_REDUCER_ACTIONS.SET_SCORE });
-      }, 900);
 
+      dispatch({ type: MEMORY_REDUCER_ACTIONS.HANDLE_CARD, payload: { card1: actualCard, card2: clickedCard, newState: checkIsPairCards ? CARD_STATE.FIND : CARD_STATE.HIDE} });
+
+      dispatch({ type: MEMORY_REDUCER_ACTIONS.SET_SCORE });
+      }, checkIsPairCards ? 100 : 900);
 
       setTimeout(() => {
         dispatch({ type: MEMORY_REDUCER_ACTIONS.SET_GAME_STATUS, payload: { status: GAME_STATUS.PLAYING } });
@@ -58,18 +56,11 @@ export const MemoryContextProvider = ({ children }) => {
     }
   },[status, actualCard])
 
-  //useEffect defined here
-  useEffect(() => {
-    if (cards && isMemoryFinished(cards)) {
-      dispatch({ type: MEMORY_REDUCER_ACTIONS.SET_IS_FINISHED, payload: { isFinished: true } });
-      dispatch({ type: MEMORY_REDUCER_ACTIONS.SET_GAME_STATUS, payload: { status: GAME_STATUS.FINISHED } });
-    }
+  const isFinished = useMemo(() => {
+   return isMemoryFinished(cards)
   }, [cards]);
 
-
   const values = { cards, score, resetGame, handleClickedCard, isFinished };
-
-
 
   return (
     <MemoryContext.Provider value={values}>

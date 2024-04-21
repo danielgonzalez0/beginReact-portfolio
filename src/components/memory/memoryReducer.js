@@ -15,7 +15,6 @@ export const MemoryInitialState = {
   status: GAME_STATUS.PLAYING,
   actualCard: null,
   score: 0,
-  isFinished: false,
 };
 
 export const memoryReducer = (state, action) => {
@@ -25,9 +24,6 @@ export const memoryReducer = (state, action) => {
       return { ...state, status: action.payload.status };
     case MEMORY_REDUCER_ACTIONS.SET_SCORE:
       return { ...state, score: state.score + 1 };
-
-    case MEMORY_REDUCER_ACTIONS.SET_IS_FINISHED:
-      return { ...state, isFinished: action.payload.isFinished };
 
     case MEMORY_REDUCER_ACTIONS.SET_ACTUAL_CARD:
       return { ...state, actualCard: action.payload.actualCard };
@@ -51,3 +47,4 @@ export const memoryReducer = (state, action) => {
   }
 
 }
+
