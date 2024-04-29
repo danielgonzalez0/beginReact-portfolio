@@ -45,6 +45,4 @@ export const memoryReducer = (state, action) => {
     default:
       return new Error(`Invalid action type: ${action.type}`);
   }
-
 }
-
