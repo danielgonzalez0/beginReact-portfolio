@@ -1,5 +1,5 @@
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Button } from "../atom/Button";
 import { DrawCanvas } from "./DrawCanvas";
 import { DrawControl } from "./DrawControl";
@@ -9,7 +9,16 @@ export const DEFAULT_SIZE = 4;
 
 // Draw exercise
 export const Draw = () => {
+  //step 1 setup
   const canvas = useRef(null);
+//step 2 make default style
+useEffect(() => {
+  const context = canvas.current?.getContext('2d')
+  if(!context) return;
+  context.strokeStyle = DEFAULT_COLOR
+  context.lineWidth = DEFAULT_SIZE
+},[])
+
  
 
   return (

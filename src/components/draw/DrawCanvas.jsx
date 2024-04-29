@@ -6,11 +6,17 @@ import { getCoordinates } from "../../lib/canvas";
 
 // Draw exercise
 export const DrawCanvas = ({canvas}) => {
+  //step 1 setup
   const isDrawing = useRef(false);
+  //step 2 make lines
+  const lastCoordinates = useRef(null);
   
 
   const startDrawing = (event) => {
+    //step 1 setup
     isDrawing.current = true;
+    //step 2 make lines
+    lastCoordinates.current = getCoordinates(event, canvas.current)
    
   };
 
@@ -19,6 +25,7 @@ export const DrawCanvas = ({canvas}) => {
   };
 
   const draw = (event) => {
+    //step 1 setup
     if(!isDrawing.current) return;
 
     const context = canvas.current?.getContext('2d')
@@ -27,12 +34,23 @@ export const DrawCanvas = ({canvas}) => {
 
     if(!context || !coordinate) return;
 
-    context.fillRect(coordinate.x, coordinate.y, 1, 1)
+    //step 2 make lines
+if(lastCoordinates.current){
+context.lineCap = 'round'
+context.lineJoin = "round"
+context.beginPath()
+context.moveTo(lastCoordinates.current.x, lastCoordinates.current.y)
+context.lineTo(coordinate.x, coordinate.y)
+context.stroke()
+}
+
+    lastCoordinates.current = coordinate;
   };
   
   
   useEffect(() => {
  const handleMouseUp = () => {
+   //step 1 setup
   stopDrawing()
  }
  window.addEventListener('mouseup', handleMouseUp)
