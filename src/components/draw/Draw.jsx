@@ -24,7 +24,17 @@ useEffect(() => {
   return (
     <div className="flex flex-col gap-8">
       <DrawCanvas canvas={canvas}/>
-      <DrawControl />
+      <DrawControl defaultColor={DEFAULT_COLOR} defaultSize={DEFAULT_SIZE} onChangeColor={(color)=>{
+        const context = canvas.current.getContext("2d")
+        if (!context) return
+
+        context.strokeStyle = color
+      }} onChangeSize={(size) => {
+        const context = canvas.current.getContext("2d")
+        if (!context) return
+
+        context.lineWidth = size
+      }}/>
       <div className="m-auto flex gap-4">
         <Button onClick={() => {}}>Reset</Button>
         <Button onClick={() => {}}>Save my drawing</Button>
