@@ -10,9 +10,8 @@ import { CommentForm } from './CommentForm';
 
 export const CommentSection = () => {
 
-  const {data, error, isLoading} = useFetch(commentsUrl)
-
-
+  const {data, error, isLoading, runFetch} = useFetch(commentsUrl)
+  console.log(data, error, isLoading);
 
   if (isLoading) return <Loader/>
 
@@ -26,7 +25,7 @@ export const CommentSection = () => {
           {data?.map((comment) => (
           <Comment key={comment.id} {...comment} />))}
         </div>
-        <CommentForm />
+        <CommentForm updateComments={runFetch}/>
       </div>
     </SectionWrapper>
   );

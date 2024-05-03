@@ -2,11 +2,13 @@ import { TextField } from "../atom/TextField";
 import { Button } from "../atom/Button";
 import { useState } from "react";
 import CommentError from "./CommentError";
+import { commentsUrl } from "../../lib/api-url";
 
-export const CommentForm = () => {
+export const CommentForm = ({updateComments}) => {
 
   const [nameError, setNameError] = useState("");
   const [commentError, setCommentError] = useState("");
+
 
   const checkUserName = (userName) => {
     if (userName.length < 3 || userName.length > 20) {
@@ -14,7 +16,6 @@ export const CommentForm = () => {
       return
     }
     setNameError("");
-    return
   }
 
   const checkComment = (comment) => {
@@ -23,24 +24,41 @@ export const CommentForm = () => {
       return
     }
     setCommentError("");
-    return
   }
 
-  const handleSubmit = (e) => {
+  const addCommentToDB = async (dataToSubmit) => {
+    console.log(dataToSubmit);
+    fetch(commentsUrl, {
+      method: 'POST',
+      body: JSON.stringify(dataToSubmit),
+    }).then(async (res) => {
+      const data = await res.json();
+      if (!res.ok) {
+        setCommentError(data.error);
+      } else {
+        updateComments();
+      }
+    }).catch((error) => {
+      setCommentError(error.message);
+    })
+  }
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    const name = e.target.username.value;
-    const comment = e.target.comment.value;
+    const formData = new FormData(e.currentTarget);
+    const name = formData.get("Username");
+    const comment = formData.get("Comment");
     checkUserName(name);
     checkComment(comment);
 
     if (nameError || commentError) return
 
-    e.preventDefault();
     const dataToSubmit = {
       username: name,
       comment: comment,
     }
-    console.log(dataToSubmit);
+    console.log("data", dataToSubmit);
+    await addCommentToDB(dataToSubmit);
     e.target.reset();
   }
   // Commentaire - Exercise
@@ -50,6 +68,7 @@ export const CommentForm = () => {
         label="Username"
         id="username"
         type="text"
+        name="Username"
         placeholder="Username"
         onFocus={() => setNameError("")}
         onChange={(e) => checkUserName(e.target.value)} />
@@ -60,6 +79,7 @@ export const CommentForm = () => {
         label="Comment"
         id="comment"
         type="text"
+        name="Comment"
         placeholder="Comment"
         component="textarea"
         onFocus={() => setCommentError("")}

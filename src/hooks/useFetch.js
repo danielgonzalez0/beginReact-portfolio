@@ -78,5 +78,5 @@ export const useFetch = (url, config) => {
     runFetch()
   }, [runFetch]);
 
-  return { error, data, isLoading };
+  return { error, data, isLoading, runFetch };
 };
