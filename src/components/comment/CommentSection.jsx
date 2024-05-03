@@ -1,4 +1,6 @@
 
+
+
 import { useFetch } from '../../hooks/useFetch';
 import { commentsUrl } from '../../lib/api-url';
 import { Loader } from '../atom/Loader/Loader';
@@ -9,6 +11,8 @@ import { CommentForm } from './CommentForm';
 export const CommentSection = () => {
 
   const {data, error, isLoading} = useFetch(commentsUrl)
+
+
 
   if (isLoading) return <Loader/>
 

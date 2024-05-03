@@ -1,4 +1,4 @@
-import { useId } from "react";
+import { forwardRef, useId } from "react";
 
 /**
  * TextField is an input field with a label !
@@ -9,7 +9,7 @@ import { useId } from "react";
  * @returns {JSX.Element}
  * @constructor
  */
-export const TextField = ({ label, component, ...props }) => {
+export const TextField = forwardRef(({ label, component, ...props }, ref)=> {
   const id = useId();
 
   const Component = component || "input";
@@ -26,8 +26,11 @@ export const TextField = ({ label, component, ...props }) => {
       <Component
         className="w-full p-3 mt-1 text-sm border-2 bg-transparent focus:border-opacity-100 border-opacity-50  border-primary rounded"
         id={id}
+        ref={ref}
         {...props}
       />
     </div>
   );
-};
+});
+
+TextField.displayName = "TextField";
