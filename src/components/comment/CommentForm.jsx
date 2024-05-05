@@ -1,47 +1,11 @@
 import { TextField } from "../atom/TextField";
 import { Button } from "../atom/Button";
-import { useState } from "react";
 import CommentError from "./CommentError";
-import { commentsUrl } from "../../lib/api-url";
-
-export const CommentForm = ({updateComments}) => {
-
-  const [nameError, setNameError] = useState("");
-  const [commentError, setCommentError] = useState("");
+import useCommentCheckErrors from "./useCommentCheckErrors";
 
 
-  const checkUserName = (userName) => {
-    if (userName.length < 3 || userName.length > 20) {
-      setNameError("Username must be between 3 and 20 characters");
-      return
-    }
-    setNameError("");
-  }
-
-  const checkComment = (comment) => {
-    if (comment.length < 10 || comment.length > 100) {
-      setCommentError("comment must be between 10 and 100 characters");
-      return
-    }
-    setCommentError("");
-  }
-
-  const addCommentToDB = async (dataToSubmit) => {
-    console.log(dataToSubmit);
-    fetch(commentsUrl, {
-      method: 'POST',
-      body: JSON.stringify(dataToSubmit),
-    }).then(async (res) => {
-      const data = await res.json();
-      if (!res.ok) {
-        setCommentError(data.error);
-      } else {
-        updateComments();
-      }
-    }).catch((error) => {
-      setCommentError(error.message);
-    })
-  }
+export const CommentForm = ({ addComments }) => {
+  const { nameError, commentError, checkUserName, checkComment, clearNameError, clearCommentError, setErrorDB } = useCommentCheckErrors();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -57,9 +21,15 @@ export const CommentForm = ({updateComments}) => {
       username: name,
       comment: comment,
     }
-    console.log("data", dataToSubmit);
-    await addCommentToDB(dataToSubmit);
-    e.target.reset();
+    await addComments(dataToSubmit)
+      .then(() => {
+        e.target.reset();
+      })
+      .catch((error) => {
+        console.log("error", error);
+        setErrorDB(error);
+      });
+
   }
   // Commentaire - Exercise
   return (
@@ -70,7 +40,7 @@ export const CommentForm = ({updateComments}) => {
         type="text"
         name="Username"
         placeholder="Username"
-        onFocus={() => setNameError("")}
+        onFocus={() => clearNameError()}
         onChange={(e) => checkUserName(e.target.value)} />
 
       <CommentError error={nameError} />
@@ -82,7 +52,7 @@ export const CommentForm = ({updateComments}) => {
         name="Comment"
         placeholder="Comment"
         component="textarea"
-        onFocus={() => setCommentError("")}
+        onFocus={() => clearCommentError()}
         onChange={(e) => checkComment(e.target.value)}
 
       />

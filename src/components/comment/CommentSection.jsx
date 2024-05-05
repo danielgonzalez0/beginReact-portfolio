@@ -1,18 +1,20 @@
 
-
-
 import { useFetch } from '../../hooks/useFetch';
-import { commentsUrl } from '../../lib/api-url';
+import { addComments, commentsUrl } from '../../lib/api-url';
 import { Loader } from '../atom/Loader/Loader';
 import { SectionWrapper } from '../atom/SectionWrapper';
 import { Comment } from './Comment';
 import { CommentForm } from './CommentForm';
 
+
 export const CommentSection = () => {
 
   const {data, error, isLoading, runFetch} = useFetch(commentsUrl)
-  console.log(data, error, isLoading);
-
+ 
+  const onAddComment = (newComment) => {
+    return addComments(newComment, runFetch)
+  }
+  
   if (isLoading) return <Loader/>
 
   if (error) return <p className='text-center text-3xl'>{error.message}</p>
@@ -25,7 +27,7 @@ export const CommentSection = () => {
           {data?.map((comment) => (
           <Comment key={comment.id} {...comment} />))}
         </div>
-        <CommentForm updateComments={runFetch}/>
+        <CommentForm addComments={onAddComment}/>
       </div>
     </SectionWrapper>
   );
